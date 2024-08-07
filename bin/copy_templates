@@ -1,0 +1,7 @@
+#!/bin/bash
+
+. lib/lib.sh
+
+# "Copy workflow templates into foreign repositories"
+
+copy_templates "$@"

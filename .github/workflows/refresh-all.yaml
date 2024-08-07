@@ -1,0 +1,39 @@
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'lib/**'
+
+name: Refresh all remote repositories
+
+jobs:
+  import_repo:
+    runs-on: ubuntu-22.04
+
+    name: Refresh all remote repositories
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Configure Git identity
+        run: |
+          git log -n 1 --pretty=format:"git config --global user.name '%an' && git config --global user.email '%ae'" | tee /dev/stderr | sh
+
+      - name: Import
+        env:
+          TOKEN_KEYS: ${{ secrets.TOKEN_KEYS }}
+        run: |
+          ./run.sh refresh_all || ./run.sh refresh_all || ./run.sh refresh_all
+
+      - name: Show job log
+        if: always()
+        run: |
+          cat refresh_all.log

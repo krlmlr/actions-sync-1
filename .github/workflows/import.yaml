@@ -1,0 +1,57 @@
+on:
+  workflow_dispatch:
+    inputs:
+      remote_repo:
+        description: 'Remote repository (owner/repo)'
+        required: true
+      base:
+        description: 'Base repository (owner/repo) if remote repo has no workflows'
+        required: false
+
+name: Import/refresh remote repositories
+
+jobs:
+  import_repo:
+    runs-on: ubuntu-22.04
+
+    name: Import/refresh ${{ github.ref }} ${{ github.event.inputs.remote_repo }}
+
+    steps:
+      - name: Check out repository
+        if: ${{ github.event.inputs.base }} == ''
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Check out repository
+        if: ${{ github.event.inputs.base }} != ''
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Configure Git identity
+        run: |
+          git log -n 1 --pretty=format:"git config --global user.name '%an' && git config --global user.email '%ae'" | tee /dev/stderr | sh
+
+      - name: Check if branch exists
+        id: check_branch
+        run: |
+          echo "exists=$(git branch --list origin/${{ github.event.inputs.remote_repo }})" >> $GITHUB_OUTPUT
+
+      - name: Show if branch exists
+        run: |
+          echo ${{ steps.check_branch.outputs.exists }}
+
+      - name: Import
+        env:
+          TOKEN_KEYS: ${{ secrets.TOKEN_KEYS }}
+        run: |
+          ./run.sh import_base "${{ github.event.inputs.remote_repo }}" "${{ github.event.inputs.base }}" --force
+
+      - name: Trigger if branch is new
+        if: ${{ steps.check_branch.outputs.exists }} == ""
+        run: |
+          echo ${{ secrets.TOKEN_KEYS }} | gh auth login --with-token
+          gh workflow run push-on-change.yaml -r "${{ github.event.inputs.remote_repo }}"
+          gh workflow run status.yaml
