@@ -238,6 +238,8 @@ import_base() { # Import a new repository with fallback to a base branch, pass s
 
   git -C wt/"$new_repo" push -u origin HEAD "$@"
 
+  git -C wt/"$new_repo" remove -v origin
+
   _copy_template wt/${new_repo} -u origin HEAD "$@"
 }
 
