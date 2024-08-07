@@ -26,6 +26,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check out repository
         if: ${{ github.event.inputs.base }} != ''
@@ -33,6 +34,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Git identity
         run: |
