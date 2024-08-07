@@ -236,7 +236,7 @@ import_base() { # Import a new repository with fallback to a base branch, pass s
 
   _add_worktree "$new_repo"
 
-  git -C "$new_repo" push -u origin HEAD "$@"
+  git -C wt/"$new_repo" push -u origin HEAD "$@"
 
   _copy_template wt/${new_repo} -u origin HEAD "$@"
 }
