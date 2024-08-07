@@ -1,4 +1,4 @@
-set -e
+set -ex
 
 _make_commands() {
   rm -rf bin
