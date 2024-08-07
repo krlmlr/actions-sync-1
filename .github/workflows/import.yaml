@@ -10,6 +10,10 @@ on:
 
 name: Import/refresh remote repositories
 
+permissions:
+  actions: write
+  contents: write
+
 jobs:
   import_repo:
     runs-on: ubuntu-22.04
